@@ -1,0 +1,20 @@
+version: '3.0'
+
+services:
+  grafana:
+    container_name: 'lesly-tenantmanager-app'
+    platform: 'linux/amd64'
+    build:
+      context: ./.config
+      args:
+        grafana_image: ${GRAFANA_IMAGE:-grafana-enterprise}
+        grafana_version: ${GRAFANA_VERSION:-10.0.3}
+    ports:
+      - 3000:3000/tcp
+    environment:
+      - GF_PLUGIN_TENANT_ROOT_URL=${GF_PLUGIN_TENANT_ROOT_URL}
+      - GF_PLUGIN_TENANT_USER_NAME=${GF_PLUGIN_TENANT_USER_NAME}
+      - GF_PLUGIN_TENANT_USER_PASSWORD=${GF_PLUGIN_TENANT_USER_PASSWORD}
+    volumes:
+      - ./dist:/var/lib/grafana/plugins/lesly-tenantmanager-app
+      - ./provisioning:/etc/grafana/provisioning

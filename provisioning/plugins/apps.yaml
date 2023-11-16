@@ -1,0 +1,5 @@
+apiVersion: 1
+
+apps:
+  - type: 'lesly-tenantmanager-app'
+    disabled: false
