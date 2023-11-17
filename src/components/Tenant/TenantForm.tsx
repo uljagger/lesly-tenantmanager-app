@@ -2,6 +2,8 @@ import React from 'react';
 import { Button, LinkButton, Input, Switch, Form, Field, FieldSet, HorizontalGroup } from '@grafana/ui';
 import { prefixRoute } from 'utils/utils.routing';
 import { ROUTES } from '../../constants';
+import { getAppEvents } from '@grafana/runtime';
+import { AppEvents } from '@grafana/data';
 
 
 export interface FormModel {
@@ -25,29 +27,39 @@ const defaultValues: FormModel = {
 };
 
 export const TenantForm = () => {
+  const appEvents = getAppEvents();
+  const strToken = localStorage.getItem("cycloAdminToken") as string;
+  const rootUrl = localStorage.getItem("tenantRootUrl") as string;
+  console.log('rootUrl', rootUrl);
+  console.log('strToken', strToken);
 
+  
   const onSubmit = async (formData: FormModel) => {
-
-
-    const jsonToken: any = localStorage.getItem("cycloAdminToken")
-    console.log('result token ', jsonToken); 
-    
-    // post new tenant
-    let createOptions = {
-      url: "https://cyclosoft-admin-api.azurewebsites.net/api/tenants",
-      method: "POST",
-    };
-    const result2 = await fetch(createOptions.url, {
-      method: "POST",
-      body: JSON.stringify(formData),
-      headers: {
-        "content-type": "application/json",
-        "Accept-Charset": "utf-8",
-        Authorization: JSON.parse(jsonToken).token_type + " " + JSON.parse(jsonToken).access_token,
+    try {
+      const response = await fetch(rootUrl, {
+        method: "POST",
+        body: JSON.stringify(formData),
+        headers: {
+          "content-type": "application/json",
+          "Accept-Charset": "utf-8",
+          Authorization: JSON.parse(strToken).token_type + " " + JSON.parse(strToken).access_token,
+        }
+      })
+  
+      if(response.ok) {
+        const responseToJson = await response.json();
+        appEvents.publish({
+          type: AppEvents.alertSuccess.name,
+          payload: ["New tenant created" + ': ' + response.status + ' (' + responseToJson + ')'],
+        });
       }
-    })
-    const responseJson2 = await result2.json();
-    console.log('result after create new tenant ', responseJson2); 
+      
+    } catch (error) {
+      appEvents.publish({
+        type: AppEvents.alertError.name,
+        payload: ["Cannot create new tenant"] 
+      });
+    }
   };
 
   return (
@@ -61,10 +73,10 @@ export const TenantForm = () => {
                 error={!!errors.adminEmailAddress ? 'Email is required' : undefined}
                 label="Email"
               >
-                <Input {...register('adminEmailAddress', { required: true })} placeholder="email@example.com" />
+                <Input type='email' {...register('adminEmailAddress', { required: true })} placeholder="email@example.com" />
               </Field>
-              <Field invalid={!!errors.adminPassword} label="Password">
-                <Input type='password' {...register('adminPassword', { required: true })} placeholder="" />
+              <Field invalid={!!errors.adminPassword} label="Password (min 8 characters)">
+                <Input min={8} type='password' {...register('adminPassword', { required: true })} placeholder="" />
               </Field>
               <Field invalid={!!errors.companyName} label="Company Name">
                 <Input {...register('companyName', { required: true,  })} placeholder="" />
