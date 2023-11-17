@@ -4,7 +4,6 @@ import { AppRootProps } from '@grafana/data';
 import { ROUTES, MULTIFORM_PROPERTIES } from '../../constants';
 import { PageFour, PageOne, PageThree, PageTwo } from '../../pages';
 import { prefixRoute } from '../../utils/utils.routing';
-import { AuthContextProvider } from '../../auth/AuthContext';
 import { ConfigTenantState } from 'types';
 import { getBackendSrv } from '@grafana/runtime';
 
@@ -14,7 +13,6 @@ const authOptions = {
 };
 
 export function App(props: AppRootProps) {
-  const [token, setToken] = useState('');
   const [configState, setConfigState] = useState<ConfigTenantState>({
     rootUrl: '',
     userName: '',
@@ -55,7 +53,6 @@ export function App(props: AppRootProps) {
         }
         cycloAdminToken = await response.json(); 
         localStorage.setItem("cycloAdminToken", JSON.stringify(cycloAdminToken))
-        setToken(JSON.stringify(cycloAdminToken));
         localStorage.setItem("tenantRootUrl", configState.rootUrl)
       }
     }
@@ -64,20 +61,15 @@ export function App(props: AppRootProps) {
   }, [configState]);
   
   return (
-    <>
-      <AuthContextProvider value={token}>
-        <Switch>
-          <Route exact path={prefixRoute(ROUTES.Two)} component={PageTwo} />
-          <Route exact path={prefixRoute(`${ROUTES.Three}/:id?`)} component={PageThree} />
+    <Switch>
+      <Route exact path={prefixRoute(ROUTES.Two)} component={PageTwo} />
+      <Route exact path={prefixRoute(`${ROUTES.Three}/:id?`)} component={PageThree} />
 
-          {/* Full-width page (this page will have no side navigation) */}
-          <Route exact path={prefixRoute(ROUTES.Four)} component={PageFour} />
+      {/* Full-width page (this page will have no side navigation) */}
+      <Route exact path={prefixRoute(ROUTES.Four)} component={PageFour} />
 
-          {/* Default page */}
-          <Route component={PageOne} />
-        </Switch>
-      </AuthContextProvider>
-    </>
-
+      {/* Default page */}
+      <Route component={PageOne} />
+    </Switch>
   );
 }
