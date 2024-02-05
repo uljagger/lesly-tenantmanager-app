@@ -131,3 +131,28 @@ Below you can find source code for existing app plugins and other related docume
 - [Basic app plugin example](https://github.com/grafana/grafana-plugin-examples/tree/master/examples/app-basic#readme)
 - [`plugin.json` documentation](https://grafana.com/developers/plugin-tools/reference-plugin-json)
 - [How to sign a plugin?](https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin)
+
+# Package a plugin
+
+## 1 - Build the plugin
+
+### Backend
+mage -v build:linux
+### Front end
+npm run build
+
+
+## 2 - Optional: If your data source plugin has a backend plugin, build it as well.
+Make sure that all the binaries are executable and have a 0755 (-rwxr-xr-x) permission.
+
+## 3 - Sign the plugin.
+
+export GRAFANA_ACCESS_POLICY_TOKEN=<YOUR_ACCESS_POLICY_TOKEN>
+npx @grafana/sign-plugin@latest --rootUrls https://lesly.online,http://162.19.65.91,http://192.168.220.203:3001,http://192.168.220.202:3002,http://lesly-config-man:9997,https://lesly-config-man:9997 
+
+After the rootUrls flag, enter a comma-separated list of URLs for the Grafana instances where you intend to install the plugin.
+
+## 4 - Rename the dist directory to match your plugin ID, and then create a ZIP archive.
+
+mv dist/ $HOME/temp/lesly-production-app
+zip $HOME/temp/lesly-production-app.zip $HOME/temp/lesly-production-app -r

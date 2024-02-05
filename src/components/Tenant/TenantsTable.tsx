@@ -26,9 +26,6 @@ export const TenantsTable = ({ tenants, onRemoveUser }: Props) => {
             <th>Creation Date</th>
             <th>Active</th>
             <th>Trial Period</th>
-            {/* <th style={{ width: '34px' }} />
-            <th>Origin</th>
-            <th></th> */}
           </tr>
         </thead>
         <tbody>
